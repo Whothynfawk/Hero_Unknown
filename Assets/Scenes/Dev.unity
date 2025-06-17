@@ -834,8 +834,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0973a55b941644841a416d11ef73f7ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 12
-  jumpheight: 3
+  moveSpeed: 8
+  gravity: -9.81
+  jumpheight: 1.3
   feet: {fileID: 262476494}
   groundMask:
     serializedVersion: 2
