@@ -284,10 +284,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab32eadb120455145bc62f8d734095ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movement: {fileID: 1736620200}
   player: {fileID: 1736620199}
   rotateSpeed: 0.5
   minClamp: -90
   maxClamp: 90
+  walkbob: 14
+  sprintbob: 18
+  crouchbob: 8
+  walkbobAmaount: 0.05
+  SprintBobAmaount: 0.01
+  crouchBobAmount: 0.025
 --- !u!1 &305326975
 GameObject:
   m_ObjectHideFlags: 0
@@ -802,9 +809,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0973a55b941644841a416d11ef73f7ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  character: {fileID: 1736620202}
   walkSpeed: 8
   sprintSpeed: 12
   crouchSpeed: 6
+  playerMove: {x: 0, y: 0, z: 0}
+  moveDir: {x: 0, y: 0, z: 0}
+  isSprinting: 0
+  isCrouching: 0
   gravity: -9.81
   jumpheight: 1.3
 --- !u!114 &1736620201

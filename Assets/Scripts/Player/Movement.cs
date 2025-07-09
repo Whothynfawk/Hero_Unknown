@@ -7,21 +7,21 @@ using UnityEngine.InputSystem;
 public class Movement : MonoBehaviour
 {
     [Header("refrences")]
-    private CharacterController character;
-
-    [Header("enums")]
-    private Coroutine crouchRoutine;
+    public CharacterController character;
 
     [Header("moveVariables")]
-    private Vector2 playerMoveInput;
-    private float moveSpeed;
     [SerializeField]
     private float walkSpeed, sprintSpeed, crouchSpeed;
+    public Vector3 playerMove;
+    private Vector2 playerMoveInput;
+    public Vector3 moveDir;
+    private float moveSpeed;
 
-    private bool isSprinting;
+    [Header("sprinting")]
+    public bool isSprinting;
 
     [Header("crouching")]
-    private bool isCrouching = false;
+    public bool isCrouching = false;
     private bool isBusyCrouching;
     private float crouchHeigt = 0.5f;
     private float standHeigt = 2;
@@ -38,15 +38,14 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         Cursor.visible = false;
-        character = GetComponent<CharacterController>();
     }
 
 
     private void Update()
     {
         //function variables
-        Vector3 playerMove = new Vector3(playerMoveInput.x * moveSpeed, 0, playerMoveInput.y * moveSpeed);
-        Vector3 moveDir = transform.right * playerMove.x + transform.forward * playerMove.z;
+        playerMove = new Vector3(playerMoveInput.x * moveSpeed, 0, playerMoveInput.y * moveSpeed);
+        moveDir = transform.right * playerMove.x + transform.forward * playerMove.z;
 
         //Checks
         if (isSprinting)
