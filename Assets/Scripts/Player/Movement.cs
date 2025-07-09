@@ -1,62 +1,128 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 
 [RequireComponent(typeof(CharacterController))]
 public class Movement : MonoBehaviour
 {
+    [Header("refrences")]
     private CharacterController character;
+
+    [Header("enums")]
+    private Coroutine crouchRoutine;
 
     [Header("moveVariables")]
     private Vector2 playerMoveInput;
-    [SerializeField] private float moveSpeed;
+    private float moveSpeed;
+    [SerializeField]
+    private float walkSpeed, sprintSpeed, crouchSpeed;
+
+    private bool isSprinting;
+
+    [Header("crouching")]
+    private bool isCrouching = false;
+    private bool isBusyCrouching;
+    private float crouchHeigt = 0.5f;
+    private float standHeigt = 2;
+    private float crouchtime = 0.15f;
+    private Vector3 crouchCenter = new Vector3(0, 0.5f, 0);
+    private Vector3 standCenter = new Vector3(0, 0, 0);
+
 
     [Header("jump variables")]
     private Vector3 velcity;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float jumpheight;
 
-    [Header("checks")]
-    public Transform feet;
-    public LayerMask groundMask;
-    private bool isGrounded;
-
     private void Start()
     {
+        Cursor.visible = false;
         character = GetComponent<CharacterController>();
     }
 
-    
+
     private void Update()
     {
         //function variables
         Vector3 playerMove = new Vector3(playerMoveInput.x * moveSpeed, 0, playerMoveInput.y * moveSpeed);
         Vector3 moveDir = transform.right * playerMove.x + transform.forward * playerMove.z;
-        //checks if the player is standing on ground or jumpables
-        isGrounded = Physics.CheckSphere(feet.position, 0.4f, groundMask);
+
+        //Checks
+        if (isSprinting)
+            moveSpeed = sprintSpeed;
+
+        if (isCrouching)
+            moveSpeed = crouchSpeed;
+
+        if (!isCrouching && !isSprinting)
+        {
+            moveSpeed = walkSpeed;
+        }
+
+
         //movement for the player
         character.Move(moveDir * Time.deltaTime);
 
+
         // gravity so the player falls
-        velcity.y += gravity * Time.deltaTime; 
+        velcity.y += gravity * Time.deltaTime;
         character.Move(velcity * Time.deltaTime);
 
         //makes sure the player his y velocity stopps
-        if (isGrounded && velcity.y < 0)
+        if (character.isGrounded && velcity.y < 0)
         {
             velcity.y = -2;
         }
     }
 
-    public void PlayerMovementInput(InputAction.CallbackContext conetext)
+    public void Walking(InputAction.CallbackContext context)
     {
-        playerMoveInput = conetext.ReadValue<Vector2>();
+        playerMoveInput = context.ReadValue<Vector2>();
+
     }
 
-    public void OnJump(InputAction.CallbackContext conetext)
+    public void OnJump(InputAction.CallbackContext context)
     {
-        if (isGrounded)
+        if (character.isGrounded && context.started)
         {
             velcity.y = Mathf.Sqrt(jumpheight * -2 * gravity);
         }
+    }
+
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        isSprinting = context.ReadValueAsButton();
+    }
+
+    public void Crouch(InputAction.CallbackContext context)
+    {
+        isCrouching = context.ReadValueAsButton();
+
+        StartCoroutine(CrouchMode());
+    }
+
+    IEnumerator CrouchMode()
+    {
+        isBusyCrouching = true;
+        float timeElapsed = 0;
+
+        float targetHeight = isCrouching ? crouchHeigt : standHeigt;
+        float currentHeigt = character.height;
+
+        Vector3 targetCenter = isCrouching ? crouchCenter : standCenter;
+        Vector3 currnetCenter = character.center;
+
+        while (timeElapsed < crouchtime)
+        {
+            character.height = Mathf.Lerp(currentHeigt, targetHeight, timeElapsed / crouchtime);
+            character.center = Vector3.Lerp(currnetCenter, targetCenter, timeElapsed / crouchtime);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        character.height = targetHeight;
+        character.center = targetCenter;
+
+        isBusyCrouching = false;
     }
 }
