@@ -21,11 +21,14 @@ public class CamRotation : MonoBehaviour
     [SerializeField] private float walkbob;
     [SerializeField] private float sprintbob;
     [SerializeField] private float crouchbob;
+    [SerializeField] private float wallRunbob;
 
     [Header("headbob amount")]
     [SerializeField] private float walkbobAmaount;
-    [SerializeField] private float SprintBobAmaount; 
+    [SerializeField] private float sprintBobAmaount;
     [SerializeField] private float crouchBobAmount;
+    [SerializeField] private float wallRunBobAmount;
+
 
     private float defaultY, defaultX;
     private float timer;
@@ -54,20 +57,20 @@ public class CamRotation : MonoBehaviour
 
     private void HeadBob()
     {
-        if (!movement.character.isGrounded) return;
+        if (!movement.character.isGrounded && !movement.isWallrunning) return;
 
-        if (Mathf.Abs(movement.moveDir.x) > 0.1f || Mathf.Abs(movement.moveDir.z) > 0.1f)
-        {
-            timer += Time.deltaTime * (movement.isCrouching ? crouchbob : movement.isSprinting ? sprintbob : walkbob);
-            this.transform.localPosition = new Vector3(
-                defaultY + Mathf.Cos(timer) *
-                (movement.isCrouching ? crouchBobAmount
-                : movement.isSprinting ? SprintBobAmaount
-                : walkbobAmaount),
-                defaultY + Mathf.Sin(timer) *
-                (movement.isCrouching ? crouchBobAmount
-                : movement.isSprinting ? SprintBobAmaount
-                : walkbobAmaount), this.transform.localPosition.z);
-        }
+        bool crouch = movement.isCrouching;
+        bool sprint = movement.isSprinting;
+        bool wall = movement.isWallrunning;
+
+        float bobSpeed = crouch ? crouchbob : sprint ? sprintbob : wall ? wallRunbob : walkbob;
+        float bobAmount = crouch ? crouchBobAmount : sprint ? sprintBobAmaount : wall ? wallRunBobAmount : walkbobAmaount;
+
+        timer += Time.deltaTime * bobSpeed;
+
+        this.transform.localPosition = new Vector3(
+            defaultX + Mathf.Cos(timer) * bobAmount,
+            defaultY + Mathf.Sin(timer) * bobAmount,
+            this.transform.localPosition.z);
     }
 }

@@ -43,6 +43,7 @@ public class Movement : MonoBehaviour
 
     //WallrunBool
     [HideInInspector] public bool isWallrunning;
+    [HideInInspector] public bool isRunningOnWall;
 
     private void Start()
     {
@@ -95,6 +96,7 @@ public class Movement : MonoBehaviour
 
         //movement for the player
         character.Move(moveDir * Time.deltaTime);
+
     }
 
     public void Walking(InputAction.CallbackContext context)

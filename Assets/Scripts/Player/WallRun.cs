@@ -72,6 +72,7 @@ public class WallRun : MonoBehaviour
                 if (!movement.isWallrunning)
                 {
                     StartWallRun();
+                    movement.isRunningOnWall = true;
                 }
             }
             else if (wallRight && movement.playerMoveInput.x > 0)
@@ -79,18 +80,27 @@ public class WallRun : MonoBehaviour
                 if (!movement.isWallrunning)
                 {
                     StartWallRun();
+                    movement.isRunningOnWall = true;
                 }
             }
             else
             {
                 if (movement.isWallrunning)
+                {
                     StopWallRun();
+                    movement.isRunningOnWall = false;
+
+                }
             }
         }
         else
         {
             if (movement.isWallrunning)
+            {
                 StopWallRun();
+                movement.isRunningOnWall = false;
+
+            }
         }
     }
 

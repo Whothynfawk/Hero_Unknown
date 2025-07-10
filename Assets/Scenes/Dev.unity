@@ -292,9 +292,11 @@ MonoBehaviour:
   walkbob: 14
   sprintbob: 18
   crouchbob: 8
+  wallRunbob: 14
   walkbobAmaount: 0.05
-  SprintBobAmaount: 0.1
+  sprintBobAmaount: 0.1
   crouchBobAmount: 0.025
+  wallRunBobAmount: 0.1
 --- !u!1 &305326975
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,7 +368,7 @@ Transform:
   m_GameObject: {fileID: 305326975}
   serializedVersion: 2
   m_LocalRotation: {x: -0.000000014509406, y: -0.000000004590975, z: -6.6612325e-17, w: 1}
-  m_LocalPosition: {x: 0.35356, y: 7.58, z: 0.35356}
+  m_LocalPosition: {x: 0.35356, y: 7.41, z: 0.35356}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -403,7 +405,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 0, y: 0.17, z: 0}
+  FollowOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &623446236
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,7 +821,7 @@ Transform:
   m_GameObject: {fileID: 1316635117}
   serializedVersion: 2
   m_LocalRotation: {x: -0.000000014509406, y: -0.000000004590975, z: -6.6612325e-17, w: 1}
-  m_LocalPosition: {x: 0.35356, y: 7.58, z: 0.35356}
+  m_LocalPosition: {x: 0.35356, y: 7.41, z: 0.35356}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1042,6 +1044,7 @@ MonoBehaviour:
   slideSlopeSpeed: 8
   slopSlowMulitplier: 0.8
   isWallrunning: 0
+  isRunningOnWall: 0
 --- !u!114 &1736620201
 MonoBehaviour:
   m_ObjectHideFlags: 0
