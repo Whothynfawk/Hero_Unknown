@@ -8,18 +8,19 @@ public class Movement : MonoBehaviour
 {
     [Header("refrences")]
     public CharacterController character;
+    public WallRun wallRun;
 
     [Header("moveVariables")]
     [SerializeField] private float walkSpeed;
     [HideInInspector] public Vector3 moveDir;
-    private Vector2 playerMoveInput;
+    [HideInInspector] public Vector2 playerMoveInput;
     private float moveSpeed;
 
     [Header("sprinting")]
     [HideInInspector] public bool isSprinting;
     [SerializeField] private float sprintSpeed;
 
-   [Header("crouching")]
+    [Header("crouching")]
     [HideInInspector] public bool isCrouching = false;
     [SerializeField] private float crouchSpeed;
     private bool isBusyCrouching;
@@ -30,15 +31,18 @@ public class Movement : MonoBehaviour
     private Vector3 standCenter = new Vector3(0, 0, 0);
 
     [Header("jump variables")]
-    [SerializeField] private float gravity;
+    public float gravity;
     [SerializeField] private float jumpheight;
     private Vector3 velcity;
 
     [Header("sliding")]
-    [SerializeField] private float  slideSlopeSpeed;
+    [SerializeField] private float slideSlopeSpeed;
     [SerializeField] float slopSlowMulitplier;
     private Vector3 hitpointnormal;
     private float slopeAngle;
+
+    //WallrunBool
+    [HideInInspector] public bool isWallrunning;
 
     private void Start()
     {
@@ -48,32 +52,6 @@ public class Movement : MonoBehaviour
 
     private void Update()
     {
-        Vector2 currentInput = new Vector2(playerMoveInput.x * moveSpeed, playerMoveInput.y * moveSpeed);
-
-        float movedirY = moveDir.y;
-        moveDir = (transform.TransformDirection(Vector3.forward) * currentInput.y) + (transform.TransformDirection(Vector3.right) * currentInput.x);
-        moveDir.y = movedirY;
-
-        if (character.isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f))
-        {
-            hitpointnormal = slopeHit.normal;
-            slopeAngle = Vector3.Angle(hitpointnormal, Vector3.up);
-
-
-            if (slopeAngle <= character.slopeLimit)
-            {
-                float slowdownMultiCalculator = (character.slopeLimit - slopeAngle) / character.slopeLimit;
-                float slowfactor = Mathf.Lerp(slopSlowMulitplier, 1,slowdownMultiCalculator);
-                moveDir.x *= slowfactor;
-                moveDir.z *= slowfactor;
-            }
-            else
-            {
-                moveDir = Vector3.zero;
-                moveDir += new Vector3(hitpointnormal.x, -hitpointnormal.y, hitpointnormal.z) * slideSlopeSpeed;
-            }
-        }
-        //Checks
         if (!character.isGrounded)
             moveDir.y -= gravity * Time.deltaTime;
 
@@ -86,6 +64,35 @@ public class Movement : MonoBehaviour
         if (!isCrouching && !isSprinting)
             moveSpeed = walkSpeed;
 
+        Vector2 currentInput = new Vector2(playerMoveInput.x * moveSpeed, playerMoveInput.y * moveSpeed);
+
+        if (!isWallrunning && character.isGrounded)
+        {
+            float movedirY = moveDir.y;
+            moveDir = (transform.TransformDirection(Vector3.forward) * currentInput.y) + (transform.TransformDirection(Vector3.right) * currentInput.x);
+            moveDir.y = movedirY;
+        }
+
+        if (character.isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f))
+        {
+            hitpointnormal = slopeHit.normal;
+            slopeAngle = Vector3.Angle(hitpointnormal, Vector3.up);
+
+
+            if (slopeAngle <= character.slopeLimit)
+            {
+                float slowdownMultiCalculator = (character.slopeLimit - slopeAngle) / character.slopeLimit;
+                float slowfactor = Mathf.Lerp(slopSlowMulitplier, 1, slowdownMultiCalculator);
+                moveDir.x *= slowfactor;
+                moveDir.z *= slowfactor;
+            }
+            else
+            {
+                moveDir = Vector3.zero;
+                moveDir += new Vector3(hitpointnormal.x, -hitpointnormal.y, hitpointnormal.z) * slideSlopeSpeed;
+            }
+        }
+
         //movement for the player
         character.Move(moveDir * Time.deltaTime);
     }
@@ -97,9 +104,16 @@ public class Movement : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (character.isGrounded && context.started)
+        if (context.started)
         {
-            moveDir.y = jumpheight;
+            if (character.isGrounded && context.started && !isWallrunning)
+            {
+                moveDir.y = jumpheight;
+            }
+            if (isWallrunning)
+            {
+                wallRun.WallJump();
+            }
         }
     }
 
