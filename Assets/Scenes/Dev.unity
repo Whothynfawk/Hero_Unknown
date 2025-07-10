@@ -293,7 +293,7 @@ MonoBehaviour:
   sprintbob: 18
   crouchbob: 8
   walkbobAmaount: 0.05
-  SprintBobAmaount: 0.01
+  SprintBobAmaount: 0.1
   crouchBobAmount: 0.025
 --- !u!1 &305326975
 GameObject:
@@ -928,7 +928,7 @@ MonoBehaviour:
   gravity: 30
   jumpheight: 8
   slideSlopeSpeed: 8
-  slopSlowMulitplier: 0.7
+  slopSlowMulitplier: 0.8
 --- !u!114 &1736620201
 MonoBehaviour:
   m_ObjectHideFlags: 0
