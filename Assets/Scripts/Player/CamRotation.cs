@@ -6,31 +6,34 @@ public class CamRotation : MonoBehaviour
 
     [Header("references")]
     public Movement movement;
-
     public Transform player;
-
+    //input
     private Vector2 playerRotationInput;
     private float Xrotation;
 
+    [Header("mouse sense")]
     [SerializeField] private float rotateSpeed;
 
-    [SerializeField] 
-    private float minClamp, maxClamp;
+    [Header("mouse lock")]
+    [SerializeField] private float minClamp, maxClamp;
 
     [Header("headbob")]
-    [SerializeField] 
-    float walkbob, sprintbob, crouchbob;
+    [SerializeField] private float walkbob;
+    [SerializeField] private float sprintbob;
+    [SerializeField] private float crouchbob;
 
-    [SerializeField]
-    float walkbobAmaount, SprintBobAmaount, crouchBobAmount;
+    [Header("headbob amount")]
+    [SerializeField] private float walkbobAmaount;
+    [SerializeField] private float SprintBobAmaount; 
+    [SerializeField] private float crouchBobAmount;
 
-    private float defaultY,defaultX;
+    private float defaultY, defaultX;
     private float timer;
 
     private void Awake()
     {
         defaultY = this.transform.localPosition.y;
-        defaultX  = this.transform.localPosition.x;
+        defaultX = this.transform.localPosition.x;
     }
     void FixedUpdate()
     {
@@ -52,7 +55,7 @@ public class CamRotation : MonoBehaviour
     private void HeadBob()
     {
         if (!movement.character.isGrounded) return;
-            
+
         if (Mathf.Abs(movement.moveDir.x) > 0.1f || Mathf.Abs(movement.moveDir.z) > 0.1f)
         {
             timer += Time.deltaTime * (movement.isCrouching ? crouchbob : movement.isSprinting ? sprintbob : walkbob);
@@ -61,9 +64,9 @@ public class CamRotation : MonoBehaviour
                 (movement.isCrouching ? crouchBobAmount
                 : movement.isSprinting ? SprintBobAmaount
                 : walkbobAmaount),
-                defaultY + Mathf.Sin(timer) * 
+                defaultY + Mathf.Sin(timer) *
                 (movement.isCrouching ? crouchBobAmount
-                : movement.isSprinting ? SprintBobAmaount 
+                : movement.isSprinting ? SprintBobAmaount
                 : walkbobAmaount), this.transform.localPosition.z);
         }
     }
