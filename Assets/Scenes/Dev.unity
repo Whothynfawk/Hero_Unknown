@@ -285,6 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement: {fileID: 1736620200}
+  wallRun: {fileID: 1736620203}
   player: {fileID: 1736620199}
   rotateSpeed: 0.5
   minClamp: -90
@@ -340,7 +341,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 72.44837
+    FieldOfView: 90
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -794,7 +795,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 72.44837
+  field of view: 90
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1257,6 +1258,12 @@ MonoBehaviour:
     m_Bits: 64
   WallrunSpeed: 10
   WallJumpHeight: 18
+  playerCam: {fileID: 305326979}
+  Fov: 90
+  wallrunFov: 110
+  wallrunFovSpeed: 20
+  camTilt: 20
+  camTiltSpeed: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

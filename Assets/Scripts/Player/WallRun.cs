@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class WallRun : MonoBehaviour
@@ -29,6 +30,16 @@ public class WallRun : MonoBehaviour
     private float exitTime = 0.2f;
     private float exitTimer;
 
+    [Header("Effects")]
+    [SerializeField] private CinemachineCamera playerCam;
+    [SerializeField] private float Fov;
+    [SerializeField] float wallrunFov;
+    [SerializeField] float wallrunFovSpeed;
+    [SerializeField] private float camTilt;
+    [SerializeField] private float camTiltSpeed;
+
+     public float tilt { get; private set; }
+
     private void Start()
     {
         gravityForce = movement.gravity;
@@ -38,7 +49,7 @@ public class WallRun : MonoBehaviour
     {
         WallChecks();
         States();
-
+        CamEffects();
         if (isExitingWall)
         {
             if (movement.isWallrunning)
@@ -57,6 +68,24 @@ public class WallRun : MonoBehaviour
             WallRunning();
     }
 
+    private void CamEffects()
+    {
+        if (!movement.isWallrunning)
+        {
+            playerCam.Lens.FieldOfView = Mathf.Lerp(playerCam.Lens.FieldOfView, Fov, wallrunFovSpeed * Time.deltaTime);
+            tilt = Mathf.Lerp(tilt, 0, camTiltSpeed * Time.deltaTime);
+        }
+        else
+        {
+            playerCam.Lens.FieldOfView = Mathf.Lerp(playerCam.Lens.FieldOfView, wallrunFov, wallrunFovSpeed * Time.deltaTime);
+
+            if (wallLeft)
+                tilt = Mathf.Lerp(tilt, -camTilt, camTiltSpeed * Time.deltaTime);
+            else if (wallRight)
+                tilt = Mathf.Lerp(tilt, camTilt, camTiltSpeed * Time.deltaTime);
+        }
+    }
+
     private void WallChecks()
     {
         wallRight = Physics.Raycast(transform.position, transform.right, out wallRightHit, wallDist, whatIsWall);
@@ -72,7 +101,6 @@ public class WallRun : MonoBehaviour
                 if (!movement.isWallrunning)
                 {
                     StartWallRun();
-                    movement.isRunningOnWall = true;
                 }
             }
             else if (wallRight && movement.playerMoveInput.x > 0)
@@ -80,7 +108,6 @@ public class WallRun : MonoBehaviour
                 if (!movement.isWallrunning)
                 {
                     StartWallRun();
-                    movement.isRunningOnWall = true;
                 }
             }
             else
@@ -88,8 +115,6 @@ public class WallRun : MonoBehaviour
                 if (movement.isWallrunning)
                 {
                     StopWallRun();
-                    movement.isRunningOnWall = false;
-
                 }
             }
         }
@@ -98,8 +123,6 @@ public class WallRun : MonoBehaviour
             if (movement.isWallrunning)
             {
                 StopWallRun();
-                movement.isRunningOnWall = false;
-
             }
         }
     }
@@ -113,6 +136,7 @@ public class WallRun : MonoBehaviour
     {
         movement.isWallrunning = true;
         movement.gravity = 0;
+
     }
 
     private void WallRunning()
@@ -126,12 +150,22 @@ public class WallRun : MonoBehaviour
         Vector3 runDir = wallForward * wallRunForce;
 
         if (movement.playerMoveInput.y != 0)
+        {
             movement.moveDir += -wallNormal * wallSlideForce * Time.fixedDeltaTime;
+            movement.isRunningOnWall = true;
+        }
+        else
+        {
+            movement.isRunningOnWall = false;
+        }
+
 
         movement.moveDir.y = -0.1f;
 
         if (movement.isWallrunning)
+        {
             movement.moveDir.z = wallForward.z * WallrunSpeed * movement.playerMoveInput.y;
+        }
 
 
     }
@@ -146,9 +180,9 @@ public class WallRun : MonoBehaviour
     {
         Vector3 wallNormal = wallRight ? wallRightHit.normal : wallLeftHit.normal;
 
-        movement.moveDir.y = WallJumpHeight;
+        movement.moveDir.y = WallJumpHeight * 0.5f;
 
-        movement.moveDir += wallNormal * wallSlideForce;
+        movement.moveDir += wallNormal * WallJumpHeight;
 
         isExitingWall = true;
         exitTimer = exitTime;

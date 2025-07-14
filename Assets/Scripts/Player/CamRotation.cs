@@ -6,7 +6,9 @@ public class CamRotation : MonoBehaviour
 
     [Header("references")]
     public Movement movement;
+    public WallRun wallRun;
     public Transform player;
+
     //input
     private Vector2 playerRotationInput;
     private float Xrotation;
@@ -44,7 +46,7 @@ public class CamRotation : MonoBehaviour
         Xrotation -= playerRot.x;
 
         Xrotation = Mathf.Clamp(Xrotation, minClamp, maxClamp);
-        transform.localRotation = Quaternion.Euler(Xrotation, 0, 0);
+        transform.localRotation = Quaternion.Euler(Xrotation, 0, wallRun.tilt);
         player.Rotate(Vector3.up * playerRot.y);
 
         HeadBob();
@@ -57,20 +59,24 @@ public class CamRotation : MonoBehaviour
 
     private void HeadBob()
     {
-        if (!movement.character.isGrounded && !movement.isWallrunning) return;
+        if (!movement.character.isGrounded && !movement.isRunningOnWall) return;
 
         bool crouch = movement.isCrouching;
         bool sprint = movement.isSprinting;
-        bool wall = movement.isWallrunning;
+        bool wall = movement.isRunningOnWall;
 
-        float bobSpeed = crouch ? crouchbob : sprint ? sprintbob : wall ? wallRunbob : walkbob;
-        float bobAmount = crouch ? crouchBobAmount : sprint ? sprintBobAmaount : wall ? wallRunBobAmount : walkbobAmaount;
+        if (Mathf.Abs(movement.moveDir.x) > 0.1f || Mathf.Abs(movement.moveDir.z) > 0.1f)
+        {
+            float bobSpeed = crouch ? crouchbob : sprint ? sprintbob : wall ? wallRunbob : walkbob;
+            float bobAmount = crouch ? crouchBobAmount : sprint ? sprintBobAmaount : wall ? wallRunBobAmount : walkbobAmaount;
 
-        timer += Time.deltaTime * bobSpeed;
+            timer += Time.deltaTime * bobSpeed;
 
-        this.transform.localPosition = new Vector3(
-            defaultX + Mathf.Cos(timer) * bobAmount,
-            defaultY + Mathf.Sin(timer) * bobAmount,
-            this.transform.localPosition.z);
+            this.transform.localPosition = new Vector3(
+                defaultX + Mathf.Cos(timer) * bobAmount,
+                defaultY + Mathf.Sin(timer) * bobAmount,
+                this.transform.localPosition.z);
+        }
+
     }
 }
