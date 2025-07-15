@@ -5,6 +5,7 @@ public class WallRun : MonoBehaviour
 {
     [Header("references")]
     [SerializeField] private Movement movement;
+    [SerializeField] private CliffAndLedgeMovement cliffAndLedgeMovement;
 
     [Header("layers")]
     [SerializeField] private LayerMask whatIsWall;
@@ -52,7 +53,7 @@ public class WallRun : MonoBehaviour
         CamEffects();
         if (isExitingWall)
         {
-            if (movement.isWallrunning)
+            if (movement.moveStates == MoveStates.wallrun)
                 StopWallRun();
 
             if (exitTimer > 0)
@@ -64,13 +65,13 @@ public class WallRun : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (movement.isWallrunning)
+        if (movement.moveStates == MoveStates.wallrun)
             WallRunning();
     }
 
     private void CamEffects()
     {
-        if (!movement.isWallrunning)
+        if (movement.moveStates != MoveStates.wallrun)
         {
             playerCam.Lens.FieldOfView = Mathf.Lerp(playerCam.Lens.FieldOfView, Fov, wallrunFovSpeed * Time.deltaTime);
             tilt = Mathf.Lerp(tilt, 0, camTiltSpeed * Time.deltaTime);
@@ -94,25 +95,32 @@ public class WallRun : MonoBehaviour
 
     private void States()
     {
+        if (cliffAndLedgeMovement.isOnLedge)
+        {
+            StopWallRun();
+        }
+
+        if (cliffAndLedgeMovement.isOnLedge) return;
+
         if (AboveGround() && !isExitingWall)
         {
             if (wallLeft && movement.playerMoveInput.x < 0)
             {
-                if (!movement.isWallrunning)
+                if (movement.moveStates != MoveStates.wallrun)
                 {
                     StartWallRun();
                 }
             }
             else if (wallRight && movement.playerMoveInput.x > 0)
             {
-                if (!movement.isWallrunning)
+                if (movement.moveStates != MoveStates.wallrun)
                 {
                     StartWallRun();
                 }
             }
             else
             {
-                if (movement.isWallrunning)
+                if (movement.moveStates == MoveStates.wallrun)
                 {
                     StopWallRun();
                 }
@@ -120,7 +128,7 @@ public class WallRun : MonoBehaviour
         }
         else
         {
-            if (movement.isWallrunning)
+            if (movement.moveStates == MoveStates.wallrun)
             {
                 StopWallRun();
             }
@@ -134,7 +142,7 @@ public class WallRun : MonoBehaviour
 
     private void StartWallRun()
     {
-        movement.isWallrunning = true;
+        movement.moveStates = MoveStates.wallrun;
         movement.gravity = 0;
 
     }
@@ -162,7 +170,7 @@ public class WallRun : MonoBehaviour
 
         movement.moveDir.y = -0.1f;
 
-        if (movement.isWallrunning)
+        if (movement.moveStates == MoveStates.wallrun)
         {
             movement.moveDir.z = wallForward.z * WallrunSpeed * movement.playerMoveInput.y;
         }
@@ -170,14 +178,17 @@ public class WallRun : MonoBehaviour
 
     }
 
-    private void StopWallRun()
+    public void StopWallRun()
     {
-        movement.isWallrunning = false;
+        movement.moveStates = MoveStates.ground;
+
         movement.gravity = gravityForce;
     }
 
     public void WallJump()
     {
+        if (cliffAndLedgeMovement.isOnLedge || cliffAndLedgeMovement.exitingLedge) return;
+
         Vector3 wallNormal = wallRight ? wallRightHit.normal : wallLeftHit.normal;
 
         movement.moveDir.y = WallJumpHeight * 0.5f;

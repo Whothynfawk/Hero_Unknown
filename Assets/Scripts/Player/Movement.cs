@@ -3,12 +3,22 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
+public enum MoveStates
+{
+    freeze,
+    wallrun,
+    ground,
+    unlimited
+};
+
 [RequireComponent(typeof(CharacterController))]
+
 public class Movement : MonoBehaviour
 {
     [Header("refrences")]
     public CharacterController character;
     public WallRun wallRun;
+    public CliffAndLedgeMovement cliffAndLedgeMovement;
 
     [Header("moveVariables")]
     [SerializeField] private float walkSpeed;
@@ -42,17 +52,43 @@ public class Movement : MonoBehaviour
     private float slopeAngle;
 
     //WallrunBool
-    [HideInInspector] public bool isWallrunning;
     [HideInInspector] public bool isRunningOnWall;
+
+    //Restrictions
+    [HideInInspector] public bool isRestriced;
+    //stateMachine
+    public MoveStates moveStates;
 
     private void Start()
     {
         Cursor.visible = false;
+        moveStates = MoveStates.ground;
     }
 
 
     private void Update()
     {
+        MoveInputs();
+        States();
+    }
+
+    private void States()
+    {
+        switch (moveStates)
+        {
+            case MoveStates.freeze:
+                moveDir = Vector3.zero;
+                break;
+            case MoveStates.unlimited:
+                moveSpeed = 999f;
+                break;
+        }
+    }
+
+    private void MoveInputs()
+    {
+        if (isRestriced) return;
+
         if (!character.isGrounded)
             moveDir.y -= gravity * Time.deltaTime;
 
@@ -67,7 +103,7 @@ public class Movement : MonoBehaviour
 
         Vector2 currentInput = new Vector2(playerMoveInput.x * moveSpeed, playerMoveInput.y * moveSpeed);
 
-        if (!isWallrunning && character.isGrounded)
+        if (moveStates != MoveStates.wallrun && character.isGrounded)
         {
             float movedirY = moveDir.y;
             moveDir = (transform.TransformDirection(Vector3.forward) * currentInput.y) + (transform.TransformDirection(Vector3.right) * currentInput.x);
@@ -96,7 +132,6 @@ public class Movement : MonoBehaviour
 
         //movement for the player
         character.Move(moveDir * Time.deltaTime);
-
     }
 
     public void Walking(InputAction.CallbackContext context)
@@ -108,14 +143,14 @@ public class Movement : MonoBehaviour
     {
         if (context.started)
         {
-            if (character.isGrounded && context.started && !isWallrunning)
-            {
+            if (character.isGrounded && context.started && moveStates != MoveStates.wallrun)
                 moveDir.y = jumpheight;
-            }
-            if (isWallrunning)
-            {
+
+            if (moveStates == MoveStates.wallrun)
                 wallRun.WallJump();
-            }
+
+            if (cliffAndLedgeMovement.isOnLedge)
+                cliffAndLedgeMovement.LedgeJump();
         }
     }
 
