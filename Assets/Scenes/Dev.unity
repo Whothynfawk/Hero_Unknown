@@ -451,7 +451,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: 2.2, z: -0.31002}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1716,18 +1716,20 @@ MonoBehaviour:
   cam: {fileID: 305326979}
   wallRun: {fileID: 1736620203}
   moveTolegdeSpeed: 12
-  legdeGrabDist: 2
-  minTimeOnLedge: 0.5
+  baseGrabDist: 1.5
   isOnLedge: 0
   Length: 1
   radius: 0.05
   ledgeMask:
     serializedVersion: 2
     m_Bits: 256
-  ledgeJumpForward: 14
+  currentLedge: {fileID: 0}
+  lastLedge: {fileID: 0}
+  ledgeJumpForward: 7
   ledgeJumpUpwardsward: 5
+  exitLedgeTime: 0.5
   exitingLedge: 0
-  exitLedgeTime: 0.2
+  cliffShimmieSpeed: 12
 --- !u!1 &1952223931
 GameObject:
   m_ObjectHideFlags: 0

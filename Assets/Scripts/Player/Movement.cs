@@ -33,7 +33,6 @@ public class Movement : MonoBehaviour
     [Header("crouching")]
     [HideInInspector] public bool isCrouching = false;
     [SerializeField] private float crouchSpeed;
-    private bool isBusyCrouching;
     private float crouchHeigt = 0.5f;
     private float standHeigt = 2;
     private float crouchtime = 0.15f;
@@ -87,7 +86,7 @@ public class Movement : MonoBehaviour
 
     private void MoveInputs()
     {
-        if (isRestriced) return;
+        //if (isRestriced) return;
 
         if (!character.isGrounded)
             moveDir.y -= gravity * Time.deltaTime;
@@ -168,7 +167,6 @@ public class Movement : MonoBehaviour
 
     IEnumerator CrouchMode()
     {
-        isBusyCrouching = true;
         float timeElapsed = 0;
 
         float targetHeight = isCrouching ? crouchHeigt : standHeigt;
@@ -186,7 +184,5 @@ public class Movement : MonoBehaviour
         }
         character.height = targetHeight;
         character.center = targetCenter;
-
-        isBusyCrouching = false;
     }
 }

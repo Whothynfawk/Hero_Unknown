@@ -16,7 +16,7 @@ public class WallRun : MonoBehaviour
     [SerializeField] private float WallJumpHeight;
     private float wallRunForce = 24f;
     private float wallSlideForce = 15f;
-    private float minJumpHeight = 1.5f;
+    private float minJumpHeight = 2f;
     private float gravityForce;
 
     // Detection
@@ -135,7 +135,7 @@ public class WallRun : MonoBehaviour
         }
     }
 
-    private bool AboveGround()
+    public bool AboveGround()
     {
         return !Physics.Raycast(transform.position, Vector3.down, minJumpHeight, whatIsGround);
     }
