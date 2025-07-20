@@ -1716,18 +1716,12 @@ MonoBehaviour:
   cam: {fileID: 305326979}
   wallRun: {fileID: 1736620203}
   moveTolegdeSpeed: 12
-  baseGrabDist: 1.5
   isOnLedge: 0
-  Length: 1
-  radius: 0.05
   ledgeMask:
     serializedVersion: 2
     m_Bits: 256
-  currentLedge: {fileID: 0}
-  lastLedge: {fileID: 0}
   ledgeJumpForward: 7
   ledgeJumpUpwardsward: 5
-  exitLedgeTime: 0.5
   exitingLedge: 0
   cliffShimmieSpeed: 12
 --- !u!1 &1952223931
