@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public enum MoveStates
 {
     freeze,
@@ -12,7 +11,6 @@ public enum MoveStates
 };
 
 [RequireComponent(typeof(CharacterController))]
-
 public class Movement : MonoBehaviour
 {
     [Header("refrences")]
@@ -55,8 +53,20 @@ public class Movement : MonoBehaviour
 
     //Restrictions
     [HideInInspector] public bool isRestriced;
+
     //stateMachine
     public MoveStates moveStates;
+
+    [Header("Tslide")]
+    private float slideThreshold = 6f;
+    private float slideSpeed = 3f;
+    private float slideSpeedDamp = 0.99f;
+    private float keepSlidingThreshold = 3f;
+    private bool isSliding;
+    private bool crouchIsHeld;
+    private bool wantsToSlide;
+    private bool canSlideAfterWallJump;
+
 
     private void Start()
     {
@@ -64,11 +74,20 @@ public class Movement : MonoBehaviour
         moveStates = MoveStates.ground;
     }
 
-
+    private void FixedUpdate()
+    {
+        HandleSliding();
+    }
     private void Update()
     {
         MoveInputs();
         States();
+
+        if (character.isGrounded && wantsToSlide)
+        {
+            StartSliding();
+            wantsToSlide = false;
+        }
     }
 
     private void States()
@@ -86,7 +105,13 @@ public class Movement : MonoBehaviour
 
     private void MoveInputs()
     {
-        //if (isRestriced) return;
+        if (isSliding)
+        {
+            character.Move(moveDir * Time.deltaTime);
+            return;
+        }
+
+        if (isRestriced) return;
 
         if (!character.isGrounded)
             moveDir.y -= gravity * Time.deltaTime;
@@ -113,7 +138,6 @@ public class Movement : MonoBehaviour
         {
             hitpointnormal = slopeHit.normal;
             slopeAngle = Vector3.Angle(hitpointnormal, Vector3.up);
-
 
             if (slopeAngle <= character.slopeLimit)
             {
@@ -142,14 +166,21 @@ public class Movement : MonoBehaviour
     {
         if (context.started)
         {
-            if (character.isGrounded && context.started && moveStates != MoveStates.wallrun)
+            if (character.isGrounded && moveStates != MoveStates.wallrun)
+            {
                 moveDir.y = jumpheight;
+            }
 
             if (moveStates == MoveStates.wallrun)
+            {
                 wallRun.WallJump();
+                StartCoroutine(AllowSlideAfterWallJump());
+            }
 
             if (cliffAndLedgeMovement.isOnLedge)
+            {
                 cliffAndLedgeMovement.LedgeJump();
+            }
         }
     }
 
@@ -160,9 +191,42 @@ public class Movement : MonoBehaviour
 
     public void Crouch(InputAction.CallbackContext context)
     {
-        isCrouching = context.ReadValueAsButton();
+        crouchIsHeld = context.ReadValueAsButton();
 
-        StartCoroutine(CrouchMode());
+        if (!isSprinting && !isSliding)
+        {
+            isCrouching = crouchIsHeld;
+            StartCoroutine(CrouchMode());
+        }
+
+        // Queue slide if crouch is pressed
+        if (crouchIsHeld)
+        {
+            wantsToSlide = true;
+        }
+        else
+        {
+            // Stop sliding immediately when crouch is released
+            if (isSliding)
+            {
+                isSliding = false;
+
+                // Stand up if crouch is no longer held
+                if (!crouchIsHeld)
+                {
+                    isCrouching = false;
+                    StartCoroutine(CrouchMode());
+                }
+            }
+        }
+    }
+
+
+    IEnumerator AllowSlideAfterWallJump()
+    {
+        canSlideAfterWallJump = true;
+        yield return new WaitForSeconds(0.5f); // Small window to allow slide after wall jump
+        canSlideAfterWallJump = false;
     }
 
     IEnumerator CrouchMode()
@@ -185,4 +249,58 @@ public class Movement : MonoBehaviour
         character.height = targetHeight;
         character.center = targetCenter;
     }
+
+    private void StartSliding()
+    {
+        if (isSliding) return; // Already sliding
+        if (!character.isGrounded && !canSlideAfterWallJump) return; // Allow queued wall-jump slides
+
+        isSliding = true;
+
+        float currentSpeed = Mathf.Clamp(moveDir.magnitude / 40f, 0f, 1f);
+        float boost = slideSpeed * 3f + Mathf.Lerp(0, slideSpeed * 2f, currentSpeed);
+
+        Vector3 direction = new Vector3(moveDir.x, 0, moveDir.z);
+        if (direction.magnitude < 0.1f)
+            direction = transform.forward;
+        direction.Normalize();
+
+        moveDir = direction * boost;
+
+        if (!isCrouching)
+        {
+            isCrouching = true;
+            StartCoroutine(CrouchMode());
+        }
+
+        canSlideAfterWallJump = false;
+    }
+
+    private void HandleSliding()
+    {
+        if (!isSliding) return;
+
+        moveDir.x *= slideSpeedDamp;
+        moveDir.z *= slideSpeedDamp;
+        moveDir.y -= gravity * Time.deltaTime;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2f))
+        {
+            Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.down, hit.normal).normalized;
+            moveDir += slopeDir * (slideSlopeSpeed * Time.deltaTime);
+        }
+
+        float horizontalSpeed = new Vector3(moveDir.x, 0, moveDir.z).magnitude;
+        if (horizontalSpeed < keepSlidingThreshold || !isCrouching)
+        {
+            isSliding = false;
+
+            if (!crouchIsHeld)
+            {
+                isCrouching = false;
+                StartCoroutine(CrouchMode());
+            }
+        }
+    }
+
 }
