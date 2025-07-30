@@ -155,8 +155,6 @@ public class WallRun : MonoBehaviour
         if (Vector3.Dot(transform.forward, wallForward) < 0)
             wallForward = -wallForward;
 
-        Vector3 runDir = wallForward * wallRunForce;
-
         if (movement.playerMoveInput.y != 0)
         {
             movement.moveDir += -wallNormal * wallSlideForce * Time.fixedDeltaTime;

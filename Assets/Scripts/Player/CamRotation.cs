@@ -56,7 +56,9 @@ public class CamRotation : MonoBehaviour
     {
         playerRotationInput = conetext.ReadValue<Vector2>();
     }
+    
 
+    //needs to implement
     private void HeadBob()
     {
         if (!movement.character.isGrounded && !movement.isRunningOnWall) return;
@@ -77,6 +79,5 @@ public class CamRotation : MonoBehaviour
                 defaultY + Mathf.Sin(timer) * bobAmount,
                 this.transform.localPosition.z);
         }
-
     }
 }
