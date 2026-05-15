@@ -1,5 +1,19 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a9e27c03d411d2fca01cc7410c24c97cd77cb539"
+    },
+    "com.svermeulen.extenject": {
+      "version": "https://github.com/Mathijs-Bakker/Extenject.git?path=UnityProject/Assets/Plugins/Zenject",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ec31a279be809bc98f5d1ed9f2add1ce3ddc77fc"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.7",
       "depth": 0,
